@@ -1,0 +1,63 @@
+name: Terraform Apply
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set Environment Variables
+        env:
+          var.access_key: ${{ secrets.ACCESS_KEY_AWS }}
+          var.secret_key: ${{ secrets.SECRET_KEY_AWS }}
+        run: echo "Variable set"
+      
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+
+      - name: Request Approval
+        uses: actions/github-script@v4
+        id: approval
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: pullRequest } = await github.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Terraform Apply Approval',
+              head: context.sha,
+              base: 'dev',
+              body: 'Please approve the Terraform apply.',
+            });
+            console.log(`::set-output name=pull_number::${pullRequest.number}`);
+
+      - name: Wait for Approval
+        uses: actions/github-script@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: reviews } = await github.pulls.listReviews({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.outputs.pull_number,
+            });
+            const approval = reviews.find(review => review.state === 'APPROVED');
+            if (!approval) {
+              console.log('::set-output name=approved::false');
+              return;
+            }
+            console.log('::set-output name=approved::true');
+
+      - name: Terraform Apply
+        if: ${{ steps.approval.outputs.approved == 'true' }}
+        run: terraform apply tfplan
