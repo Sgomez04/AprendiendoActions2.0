@@ -1,4 +1,114 @@
-name: Terraform Apply
+#PRUEBA 1
+# name: Terraform Apply
+
+# on:
+#   push:
+#     branches:
+#       - dev
+
+# jobs:
+#   plan:
+#     runs-on: ubuntu-latest
+#     outputs:
+#       TERRAFORM_PLAN: ${{steps.}}
+#     steps:
+#       - name: Checkout Repository
+#         uses: actions/checkout@v2
+
+#       - name: Configure AWS Credentials
+#         uses: aws-actions/configure-aws-credentials@v2
+#         with:
+#           aws-access-key-id: ${{ secrets.ACCESS_KEY_AWS }}
+#           aws-secret-access-key: ${{ secrets.SECRET_KEY_AWS }}
+#           aws-region: eu-west-3
+
+#       - name: Terraform Init
+#         run: terraform init
+
+#       - name: Run Terraform Plan
+#         id: terraform_plan
+#         run: |
+#           terraform plan -out=tfplan
+#           echo "::set-output name=plan_file::tfplan"
+
+#   approval:
+#     needs: plan
+#     runs-on: ubuntu-latest
+#     environment: APPROVAL_TO_APPLY
+
+#   apply:
+#     needs: approval
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Transfer Plan File
+#         uses: actions/upload-artifact@v2
+#         with:
+#           name: tfplan
+#           path: ${{ needs.plan.outputs.plan_file }}
+
+#       - name: Run Terraform Apply
+#         run: |
+#           terraform apply -auto-approve tfplan
+
+#PRUEBA 2
+# name: Terraform Apply
+
+# on:
+#   push:
+#     branches:
+#       - dev
+
+# jobs:
+#   common_steps:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout Repository
+#         uses: actions/checkout@v2
+
+#       - name: Configure AWS Credentials
+#         uses: aws-actions/configure-aws-credentials@v1
+#         with:
+#           aws-access-key-id: ${{ secrets.ACCESS_KEY_AWS }}
+#           aws-secret-access-key: ${{ secrets.SECRET_KEY_AWS }}
+#           aws-region: eu-west-3
+
+#   plan:
+#     needs: common_steps
+#     runs-on: ubuntu-latest
+#     outputs:
+#       plan_file: ${{ steps.terraform_plan.outputs.plan_file }}
+#     steps:
+#       - name: Terraform Init
+#         run: terraform init
+
+#       - name: Run Terraform Plan
+#         id: terraform_plan
+#         run: |
+#           terraform plan -out=tfplan
+#           echo "::set-output name=plan_file::tfplan"
+
+#   approval:
+#     needs: plan
+#     runs-on: ubuntu-latest
+#     environment: APPROVAL_TO_APPLY
+
+#   apply:
+#     needs: approval
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Download Plan File
+#         uses: actions/download-artifact@v2
+#         with:
+#           name: tfplan
+#           path: .
+
+#       - name: Run Terraform Apply
+#         run: |
+#           terraform apply -auto-approve tfplan
+
+
+#PRUEBA 3
+name: Terraform Workflow
 
 on:
   push:
@@ -6,15 +116,14 @@ on:
       - dev
 
 jobs:
-  deploy:
+  common_steps:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.ACCESS_KEY_AWS }}
           aws-secret-access-key: ${{ secrets.SECRET_KEY_AWS }}
@@ -23,42 +132,26 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
-      - name: Terraform Plan
+  plan:
+    runs-on: ubuntu-latest
+    needs: common_steps
+    steps:
+      - name: Run Terraform Plan
         run: terraform plan -out=tfplan
 
-      - name: Request Approval
-        uses: actions/github-script@v4
-        id: approval
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const { data: pullRequest } = await github.pulls.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: 'Terraform Apply Approval',
-              head: context.sha,
-              base: 'dev',
-              body: 'Please approve the Terraform apply.',
-            });
-            console.log(`::set-output name=pull_number::${pullRequest.number}`);
+  approval:
+    runs-on: ubuntu-latest
+    needs: common_steps
+    environment: APPROVAL_TO_APPLY
 
-      - name: Wait for Approval
-        uses: actions/github-script@v4
+  apply:
+    runs-on: ubuntu-latest
+    needs: [approval, plan]
+    steps:
+      - name: Download Plan File
+        uses: actions/download-artifact@v2
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const { data: reviews } = await github.pulls.listReviews({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.outputs.pull_number,
-            });
-            const approval = reviews.find(review => review.state === 'APPROVED');
-            if (!approval) {
-              console.log('::set-output name=approved::false');
-              return;
-            }
-            console.log('::set-output name=approved::true');
+          name: tfplan
 
-      - name: Terraform Apply
-        if: ${{ steps.approval.outputs.approved == 'true' }}
-        run: terraform apply tfplan
+      - name: Run Terraform Apply
+        run: terraform apply -auto-approve tfplan
