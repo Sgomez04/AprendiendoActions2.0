@@ -51,64 +51,7 @@
 #           terraform apply -auto-approve tfplan
 
 #PRUEBA 2
-# name: Terraform Apply
-
-# on:
-#   push:
-#     branches:
-#       - dev
-
-# jobs:
-#   common_steps:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Checkout Repository
-#         uses: actions/checkout@v2
-
-#       - name: Configure AWS Credentials
-#         uses: aws-actions/configure-aws-credentials@v1
-#         with:
-#           aws-access-key-id: ${{ secrets.ACCESS_KEY_AWS }}
-#           aws-secret-access-key: ${{ secrets.SECRET_KEY_AWS }}
-#           aws-region: eu-west-3
-
-#   plan:
-#     needs: common_steps
-#     runs-on: ubuntu-latest
-#     outputs:
-#       plan_file: ${{ steps.terraform_plan.outputs.plan_file }}
-#     steps:
-#       - name: Terraform Init
-#         run: terraform init
-
-#       - name: Run Terraform Plan
-#         id: terraform_plan
-#         run: |
-#           terraform plan -out=tfplan
-#           echo "::set-output name=plan_file::tfplan"
-
-#   approval:
-#     needs: plan
-#     runs-on: ubuntu-latest
-#     environment: APPROVAL_TO_APPLY
-
-#   apply:
-#     needs: approval
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Download Plan File
-#         uses: actions/download-artifact@v2
-#         with:
-#           name: tfplan
-#           path: .
-
-#       - name: Run Terraform Apply
-#         run: |
-#           terraform apply -auto-approve tfplan
-
-
-#PRUEBA 3
-name: Terraform Workflow
+name: Terraform Apply
 
 on:
   push:
@@ -116,8 +59,10 @@ on:
       - dev
 
 jobs:
-  common_steps:
+  plan:
     runs-on: ubuntu-latest
+    outputs:
+      plan_file: ${{ steps.terraform_plan.outputs.plan_file }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -132,29 +77,38 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
-  plan:
-    runs-on: ubuntu-latest
-    needs: common_steps
-    steps:
       - name: Run Terraform Plan
-        run: terraform plan -out=tfplan
+        id: terraform_plan
+        run: |
+          terraform plan -out=tfplan
+          echo "::set-output name=plan_file::tfplan"
 
   approval:
+    needs: plan
     runs-on: ubuntu-latest
-    needs: common_steps
     environment: APPROVAL_TO_APPLY
-    steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
 
   apply:
+    needs: approval
     runs-on: ubuntu-latest
-    needs: [approval, plan]
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.ACCESS_KEY_AWS }}
+          aws-secret-access-key: ${{ secrets.SECRET_KEY_AWS }}
+          aws-region: eu-west-3
+
       - name: Download Plan File
         uses: actions/download-artifact@v2
         with:
           name: tfplan
+          path: .
 
       - name: Run Terraform Apply
-        run: terraform apply -auto-approve tfplan
+        run: |
+          terraform init
+          terraform apply -auto-approve tfplan
