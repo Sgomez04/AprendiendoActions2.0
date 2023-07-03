@@ -35,8 +35,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: APPROVAL_TO_APPLY
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+      - name: Show tfstate
+        uses: |
+          echo "${{ needs.plan.outputs.PLAN_FILE }}"
 
   apply:
     needs: [approval_to_apply, plan]
