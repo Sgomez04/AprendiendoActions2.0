@@ -36,7 +36,7 @@ jobs:
     environment: APPROVAL_TO_APPLY
     steps:
       - name: Show tfstate
-        uses: |
+        run: |
           echo "${{ needs.plan.outputs.PLAN_FILE }}"
 
   apply:
@@ -63,8 +63,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: APPROVAL_TO_DELETE
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+      - name: Show tfstate
+        run: |
+          echo "${{ needs.plan.outputs.PLAN_FILE }}"
   
   delete:
     needs: [approval_to_delete, plan]
@@ -83,4 +84,4 @@ jobs:
       - name: Run Terraform Delete
         run: |
           terraform init
-          terraform delete -auto-approve ${{ needs.plan.outputs.PLAN_FILE }}
+          terraform delete -auto-approve
