@@ -87,6 +87,9 @@ jobs:
     needs: plan
     runs-on: ubuntu-latest
     environment: APPROVAL_TO_APPLY
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
 
   apply:
     needs: approval
