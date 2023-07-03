@@ -143,6 +143,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: common_steps
     environment: APPROVAL_TO_APPLY
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
 
   apply:
     runs-on: ubuntu-latest
