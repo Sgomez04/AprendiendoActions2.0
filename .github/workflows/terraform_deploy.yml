@@ -81,7 +81,7 @@ jobs:
         id: terraform_plan
         run: |
           terraform plan -out=tfplan
-          echo "::set-output name=plan_file::tfplan"
+          plan_file=$(cat tfplan) >> $GITHUB_OUTPUT
 
   approval:
     needs: plan
