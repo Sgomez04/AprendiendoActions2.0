@@ -1,63 +1,10 @@
-#PRUEBA 1
-# name: Terraform Apply
-
-# on:
-#   push:
-#     branches:
-#       - dev
-
-# jobs:
-#   plan:
-#     runs-on: ubuntu-latest
-#     outputs:
-#       TERRAFORM_PLAN: ${{steps.}}
-#     steps:
-#       - name: Checkout Repository
-#         uses: actions/checkout@v2
-
-#       - name: Configure AWS Credentials
-#         uses: aws-actions/configure-aws-credentials@v2
-#         with:
-#           aws-access-key-id: ${{ secrets.ACCESS_KEY_AWS }}
-#           aws-secret-access-key: ${{ secrets.SECRET_KEY_AWS }}
-#           aws-region: eu-west-3
-
-#       - name: Terraform Init
-#         run: terraform init
-
-#       - name: Run Terraform Plan
-#         id: terraform_plan
-#         run: |
-#           terraform plan -out=tfplan
-#           echo "::set-output name=plan_file::tfplan"
-
-#   approval:
-#     needs: plan
-#     runs-on: ubuntu-latest
-#     environment: APPROVAL_TO_APPLY
-
-#   apply:
-#     needs: approval
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Transfer Plan File
-#         uses: actions/upload-artifact@v2
-#         with:
-#           name: tfplan
-#           path: ${{ needs.plan.outputs.plan_file }}
-
-#       - name: Run Terraform Apply
-#         run: |
-#           terraform apply -auto-approve tfplan
-
-#PRUEBA 2
 name: Terraform Apply
 
 on:
   push:
     branches:
       - dev
-
+      
 jobs:
   plan:
     runs-on: ubuntu-latest
@@ -83,7 +30,7 @@ jobs:
           terraform plan -out=tfplan
           plan_file=$(cat tfplan) >> $GITHUB_OUTPUT
 
-  approval:
+  approval_to_apply:
     needs: plan
     runs-on: ubuntu-latest
     environment: APPROVAL_TO_APPLY
@@ -92,7 +39,7 @@ jobs:
         uses: actions/checkout@v2
 
   apply:
-    needs: [approval, plan]
+    needs: [approval_to_apply, plan]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -109,3 +56,30 @@ jobs:
         run: |
           terraform init
           terraform apply -auto-approve ${{ needs.plan.outputs.PLAN_FILE }}
+
+  approval_to_delete:
+    needs: apply
+    runs-on: ubuntu-latest
+    environment: APPROVAL_TO_DELETE
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+  
+  delete:
+    needs: [approval_to_delete, plan]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.ACCESS_KEY_AWS }}
+          aws-secret-access-key: ${{ secrets.SECRET_KEY_AWS }}
+          aws-region: eu-west-3
+
+      - name: Run Terraform Delete
+        run: |
+          terraform init
+          terraform delete -auto-approve ${{ needs.plan.outputs.PLAN_FILE }}
