@@ -36,7 +36,8 @@ jobs:
     steps:
       - name: Write to workflow job summary
         run: |
-          SUMMARY=${{ needs.plan.outputs.PLAN_FILE }}
+          terraform plan -out=tfplan
+          SUMMARY=$(cat tfplan)
           echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
 
   # approval_to_apply:
