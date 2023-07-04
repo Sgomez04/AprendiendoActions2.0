@@ -29,7 +29,7 @@ jobs:
         run: |
           terraform plan -out=tfplan
           plan_file=$(cat tfplan) >> $GITHUB_OUTPUT
-          echo "$(terraform plan)" >> $GITHUB_STEP_SUMMARY
+          echo "$(terraform plan -no-color)" >> $GITHUB_STEP_SUMMARY
 
   # approval_to_apply:
   #   needs: show_plan
