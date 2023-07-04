@@ -29,7 +29,8 @@ jobs:
         run: |
           terraform plan -out=tfplan
           plan_file=$(cat tfplan) >> $GITHUB_OUTPUT
-          echo "terraform plan -out=json" >> $GITHUB_STEP_SUMMARY
+          SUMMARY = terraform show -json tfplan
+          echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
 
   # approval_to_apply:
   #   needs: show_plan
