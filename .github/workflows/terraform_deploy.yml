@@ -34,75 +34,61 @@ jobs:
     needs: plan
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-
-      - name: Show Plan
+      - name: Write to workflow job summary
         run: |
-          echo "Plan generado por Terraform:"
-          echo "---------------------------"
-          cat ${{ needs.plan.outputs.PLAN_FILE }}
-          echo "---------------------------"
-          echo "Fin del plan"
-        id: show_plan
-      
-      - name: Plan Summary
-        run: |
-          echo "::group::Plan Summary"
-          echo "${{ steps.show_plan.outputs.stdout }}"
-          echo "::endgroup::"
-        if: ${{ always() }}
+          SUMMARY=${{ needs.plan.outputs.PLAN_FILE }}
+          echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
 
-  approval_to_apply:
-    needs: show_plan
-    runs-on: ubuntu-latest
-    environment: APPROVAL_TO_APPLY
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+  # approval_to_apply:
+  #   needs: show_plan
+  #   runs-on: ubuntu-latest
+  #   environment: APPROVAL_TO_APPLY
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v2
 
-  apply:
-    needs: [approval_to_apply, plan]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+  # apply:
+  #   needs: [approval_to_apply, plan]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v2
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.ACCESS_KEY_AWS }}
-          aws-secret-access-key: ${{ secrets.SECRET_KEY_AWS }}
-          aws-region: eu-west-3
+  #     - name: Configure AWS Credentials
+  #       uses: aws-actions/configure-aws-credentials@v1
+  #       with:
+  #         aws-access-key-id: ${{ secrets.ACCESS_KEY_AWS }}
+  #         aws-secret-access-key: ${{ secrets.SECRET_KEY_AWS }}
+  #         aws-region: eu-west-3
 
-      - name: Run Terraform Apply
-        run: |
-          terraform init
-          terraform apply -auto-approve ${{ needs.plan.outputs.PLAN_FILE }}
+  #     - name: Run Terraform Apply
+  #       run: |
+  #         terraform init
+  #         terraform apply -auto-approve ${{ needs.plan.outputs.PLAN_FILE }}
 
-  approval_to_delete:
-    needs: apply
-    runs-on: ubuntu-latest
-    environment: APPROVAL_TO_DELETE
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+  # approval_to_delete:
+  #   needs: apply
+  #   runs-on: ubuntu-latest
+  #   environment: APPROVAL_TO_DELETE
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v2
 
-  delete:
-    needs: [approval_to_delete, plan]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+  # delete:
+  #   needs: [approval_to_delete, plan]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v2
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.ACCESS_KEY_AWS }}
-          aws-secret-access-key: ${{ secrets.SECRET_KEY_AWS }}
-          aws-region: eu-west-3
+  #     - name: Configure AWS Credentials
+  #       uses: aws-actions/configure-aws-credentials@v1
+  #       with:
+  #         aws-access-key-id: ${{ secrets.ACCESS_KEY_AWS }}
+  #         aws-secret-access-key: ${{ secrets.SECRET_KEY_AWS }}
+  #         aws-region: eu-west-3
 
-      - name: Run Terraform Delete
-        run: |
-          terraform init
-          terraform destroy -auto-approve
+  #     - name: Run Terraform Delete
+  #       run: |
+  #         terraform init
+  #         terraform destroy -auto-approve
