@@ -45,9 +45,16 @@ jobs:
           echo "---------------------------"
           echo "Fin del plan"
         id: show_plan
+      
+      - name: Plan Summary
+        run: |
+          echo "::group::Plan Summary"
+          echo "${{ steps.show_plan.outputs.stdout }}"
+          echo "::endgroup::"
+        if: ${{ always() }}
 
   approval_to_apply:
-    needs: plan
+    needs: show_plan
     runs-on: ubuntu-latest
     environment: APPROVAL_TO_APPLY
     steps:
