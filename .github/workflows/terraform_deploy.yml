@@ -29,16 +29,7 @@ jobs:
         run: |
           terraform plan -out=tfplan
           plan_file=$(cat tfplan) >> $GITHUB_OUTPUT
-
-  show_plan:
-    needs: plan
-    runs-on: ubuntu-latest
-    steps:
-      - name: Write to workflow job summary
-        run: |
-          terraform plan -out=tfplan
-          SUMMARY=$(cat tfplan)
-          echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
+          echo "$plan_file" >> $GITHUB_STEP_SUMMARY
 
   # approval_to_apply:
   #   needs: show_plan
