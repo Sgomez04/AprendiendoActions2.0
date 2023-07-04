@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - dev
-      
+
 jobs:
   plan:
     runs-on: ubuntu-latest
@@ -29,7 +29,22 @@ jobs:
         run: |
           terraform plan -out=tfplan
           plan_file=$(cat tfplan) >> $GITHUB_OUTPUT
-          plan_file=$(cat tfplan) >> $GITHUB_STEP_SUMMARY
+
+  show_plan:
+    needs: plan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Show Plan
+        run: |
+          echo "Plan generado por Terraform:"
+          echo "---------------------------"
+          cat ${{ needs.plan.outputs.PLAN_FILE }}
+          echo "---------------------------"
+          echo "Fin del plan"
+        id: show_plan
 
   approval_to_apply:
     needs: plan
@@ -65,7 +80,7 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
-  
+
   delete:
     needs: [approval_to_delete, plan]
     runs-on: ubuntu-latest
