@@ -16,9 +16,9 @@ jobs:
       - name: Reading config.json
         run: |
          echo "LAMBDA_NAME=$(jq -r ".lambda_name" ./config.json)" >> $GITHUB_ENV
-         echo "LAMBDA_NAME=$(jq -r ".bucket_name" ./config.json)" >> $GITHUB_ENV
-         echo "LAMBDA_NAME=$(jq -r ".path" ./config.json)" >> $GITHUB_ENV
-         echo "LAMBDA_NAME=$(jq -r ".artifact_name" ./config.json)" >> $GITHUB_ENV
+         echo "BUCKET_NAME=$(jq -r ".bucket_name" ./config.json)" >> $GITHUB_ENV
+         echo "PATH_ARTIFACT=$(jq -r ".path" ./config.json)" >> $GITHUB_ENV
+         echo "ARTIFACT_NAME=$(jq -r ".artifact_name" ./config.json)" >> $GITHUB_ENV
 
       - name: Show environment variables
-        run: echo "LAMBDA_NAME=$LAMBDA_NAME, BUCKET_NAME=$BUCKET_NAME, PATH=$PATH, ARTIFACT_NAME=$ARTIFACT_NAME"   
+        run: echo "LAMBDA_NAME=$LAMBDA_NAME, BUCKET_NAME=$BUCKET_NAME, PATH_ARTIFACT=$PATH_ARTIFACT, ARTIFACT_NAME=$ARTIFACT_NAME"   
