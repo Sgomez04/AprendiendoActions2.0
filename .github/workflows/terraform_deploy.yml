@@ -15,8 +15,7 @@ jobs:
 
       - name: Reading config.json
         run: |
-         echo "LAMBDA_NAME=$(jq -r '.lambda_name' ./config.json)" >> $GITHUB_ENV
-         echo "LAMBDA_NAME=$(jq -r '.bucket_name' ./config.json)" >> $GITHUB_ENV
-         echo "LAMBDA_NAME=$(jq -r '.path" ./config.json)' >> $GITHUB_ENV
-         echo "LAMBDA_NAME=$(jq -r '.artifact_name' ./config.json)" >> $GITHUB_ENV
-  
+         echo "LAMBDA_NAME=$(jq -r ".lambda_name" ./config.json)" >> $GITHUB_ENV
+         echo "LAMBDA_NAME=$(jq -r ".bucket_name" ./config.json)" >> $GITHUB_ENV
+         echo "LAMBDA_NAME=$(jq -r ".path" ./config.json)" >> $GITHUB_ENV
+         echo "LAMBDA_NAME=$(jq -r ".artifact_name" ./config.json)" >> $GITHUB_ENV
