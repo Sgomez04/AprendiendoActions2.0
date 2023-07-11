@@ -53,12 +53,6 @@ jobs:
           echo "$json_data" > json_data.txt
           echo "::set-output name=json_data::json_data.txt"
 
-      - name: Store JSON data as artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: json-data
-          path: json_data.txt
-
   echo_tags:
     needs: get_tags
     runs-on: ubuntu-latest
@@ -68,12 +62,6 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
-
-      - name: Download JSON data artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: json-data
-          path: json_data
 
       - name: Show tags
         run: |
