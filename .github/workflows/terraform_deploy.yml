@@ -16,7 +16,7 @@ jobs:
         run: |
           properties=$(jq -r 'keys[]' ./config.json)
           while IFS= read -r property; do
-            value=$(jq -r ".$property" ./$config.json )
+            value=$(jq -r ".$property" ./config.json )
             echo "$property=$value" >> $GITHUB_ENV
           done <<< "$properties"
 
