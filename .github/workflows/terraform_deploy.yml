@@ -6,19 +6,26 @@ on:
       - main
 
 jobs:
-  get_info:
+
+  strategy:
     runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        # variable_values: [lambda_name, bucket_name, path, artifact_name]
+        json_tag: ["lambda_name1","lambda_name2","lambda_name3","lambda_name4"]
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Reading config.json and setting environment variables
-        run: |
-          properties=$(jq -r 'keys[]' ./config.json)
-          while IFS= read -r property; do
-            value=$(jq -r ".$property" ./config.json )
-            echo "$property=$value" >> $GITHUB_ENV
-          done <<< "$properties"
+      # - name: Reading config.json and setting environment variables
+      #   run: |
+      #     properties=$(jq -r 'keys[]' ./config.json)
+      #     while IFS= read -r property; do
+      #       value=$(jq -r ".$property" ./$config.json )
+      #       echo "$property=$value" >> $GITHUB_ENV
+      #     done <<< "$properties"
 
       - name: Show environment variables
-        run: echo "$(<$GITHUB_ENV)"
+        run: echo "${{ matrix.json_tag }}"
