@@ -1,3 +1,28 @@
+# name: Github Actions Matrix
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout Repository
+#         uses: actions/checkout@v2
+
+#       - name: Reading config.json
+#         run: |
+#          echo "LAMBDA_NAME=$(jq -r ".lambda_name" ./config.json)" >> $GITHUB_ENV
+#          echo "BUCKET_NAME=$(jq -r ".bucket_name" ./config.json)" >> $GITHUB_ENV
+#          echo "PATH_ARTIFACT=$(jq -r ".path" ./config.json)" >> $GITHUB_ENV
+#          echo "ARTIFACT_NAME=$(jq -r ".artifact_name" ./config.json)" >> $GITHUB_ENV
+
+#       - name: Show environment variables
+#         run: echo "LAMBDA_NAME=$LAMBDA_NAME, BUCKET_NAME=$BUCKET_NAME, PATH_ARTIFACT=$PATH_ARTIFACT, ARTIFACT_NAME=$ARTIFACT_NAME"
+
 name: Github Actions Matrix
 
 on:
@@ -9,16 +34,34 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+  strategy:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        variable_values: [lambda_name, bucket_name, path, artifact_name]
+        json_paths: [".lambda_name", ".bucket_name", ".path", ".artifact_name"]
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Reading config.json
+      # - name: Reading config.json and setting environment variables
+      #   run: |
+      #     VARIABLE=${{ matrix.variable_values[matrix.index] }}
+      #     JSON_PATH=${{ matrix.json_paths[matrix.index] }}
+      #     echo "$VARIABLE=$(jq -r $JSON_PATH ./config.json)" >> $GITHUB_ENV
+
+      # - name: Show environment variables
+      #   run: echo "LAMBDA_NAME=$LAMBDA_NAME, BUCKET_NAME=$BUCKET_NAME, PATH=$PATH, ARTIFACT_NAME=$ARTIFACT_NAME"
+
+      - name: Reading config.json and setting environment variables
         run: |
-         echo "LAMBDA_NAME=$(jq -r ".lambda_name" ./config.json)" >> $GITHUB_ENV
-         echo "BUCKET_NAME=$(jq -r ".bucket_name" ./config.json)" >> $GITHUB_ENV
-         echo "PATH_ARTIFACT=$(jq -r ".path" ./config.json)" >> $GITHUB_ENV
-         echo "ARTIFACT_NAME=$(jq -r ".artifact_name" ./config.json)" >> $GITHUB_ENV
+          properties=$(jq -r 'keys[]' ./config.json)
+          while IFS= read -r property; do
+            value=$(jq -r ".$property" ./config.json)
+            echo "$property=$value" >> $GITHUB_ENV
+          done <<< "$properties"
 
       - name: Show environment variables
-        run: echo "LAMBDA_NAME=$LAMBDA_NAME, BUCKET_NAME=$BUCKET_NAME, PATH_ARTIFACT=$PATH_ARTIFACT, ARTIFACT_NAME=$ARTIFACT_NAME"   
+        run: echo "$(<$GITHUB_ENV)"
