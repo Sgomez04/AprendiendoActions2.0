@@ -9,7 +9,7 @@
 
 #   strategy:
 #     runs-on: ubuntu-latest
-    
+
 #     strategy:
 #       matrix:
 #         # variable_values: [lambda_name, bucket_name, path, artifact_name]
@@ -30,7 +30,6 @@
 #       - name: Show environment variables
 #         run: echo "${{ matrix.json_paths }} >> $GITHUB_ENV"
 
-
 name: Github Actions Matrix
 
 on:
@@ -42,33 +41,46 @@ jobs:
   get_tags:
     runs-on: ubuntu-latest
     outputs:
-      tags: ${{ steps.read_json.outputs.tags }}
+      json_data: ${{ steps.read_json.outputs.json_data }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Read JSON data and extract tags
+      - name: Read JSON data
         id: read_json
         run: |
           json_data=$(cat ./config.json)
-          tags=$(jq -r 'keys[]' <<< "$json_data")
-          echo "::set-output name=tags::$tags"
+          echo "$json_data" > json_data.txt
+          echo "::set-output name=json_data::json_data.txt"
+
+      - name: Store JSON data as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: json-data
+          path: json_data.txt
 
   echo_tags:
     needs: get_tags
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        tags: ${{ fromJson(needs.get_tags.outputs.tags) }}
+        tags: ${{ fromJson(needs.get_tags.outputs.json_data) }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
+      - name: Download JSON data artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: json-data
+          path: json_data
+
       - name: Show tags
         run: |
-          echo "Tag: ${{ matrix.tags }}"
+          tag="${{ matrix.tags }}"
+          echo "Tag: $tag"
           echo "Values:"
-          jq -r ".[${{ matrix.tags }}] | keys[]" <<< "$json_data" | while read -r key; do
-            value=$(jq -r ".[${{ matrix.tags }}].$key" <<< "$json_data")
+          jq -r ".$tag | keys[]" json_data/json_data.txt | while read -r key; do
+            value=$(jq -r ".$tag.$key" json_data/json_data.txt)
             echo "$key: $value"
           done
