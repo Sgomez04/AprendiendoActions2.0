@@ -37,7 +37,7 @@ on:
       - main
 
 jobs:
-  get_info:
+  get_tags:
     runs-on: ubuntu-latest
     outputs:
       values: ${{ steps.read_config.outputs.values }}
@@ -57,6 +57,21 @@ jobs:
           values_string=$(IFS=','; echo "${values[*]}")
           echo "::set-output name=values::$values_string"
 
+  show_info:
+    needs: get_tags
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        tags: ${{ fromJson(needs.get_tags.outputs.values) }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Show environment variables
+        run: echo "${{ matrix.tags }} >> $GITHUB_ENV"
+
+  
   # echo_tags:
   #   needs: get_tags
   #   runs-on: ubuntu-latest
@@ -76,19 +91,3 @@ jobs:
   #           value=$(jq -r ".$tag.$key" json_data/json_data.txt)
   #           echo "$key: $value"
   #         done
-
-
-  another_job:
-    needs: get_info
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-
-      - name: Use values from previous job
-        run: |
-          values="${{ needs.get_info.outputs.values }}"
-          IFS=',' read -r -a values_array <<< "$values"
-          for value in "${values_array[@]}"; do
-            echo "Value: $value"
-          done
