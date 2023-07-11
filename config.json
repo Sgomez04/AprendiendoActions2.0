@@ -1,0 +1,8 @@
+{
+    "lambda_name": "nuevaLambda2",
+    "path": "lambdas/nuevaLambda2/",
+    "bucket_name": "aesd1airas3infinitycrit006",
+    "artifact_name": "lambda_handler",
+    "sonar_pk": "wel:wel:wmi-infi:common-utils-python-library",
+    "fortify_pj": "santander-group-wealth-ng_wmi-columba-python-integration-platform"
+}
