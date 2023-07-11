@@ -12,23 +12,22 @@
 
 #     strategy:
 #       matrix:
-#         # variable_values: [lambda_name, bucket_name, path, artifact_name]
 #         json_tag: ["lambda_name1","lambda_name2","lambda_name3","lambda_name4"]
 
 #     steps:
 #       - name: Checkout Repository
 #         uses: actions/checkout@v2
 
-#       # - name: Reading config.json and setting environment variables
-#       #   run: |
-#       #     properties=$(jq -r 'keys[]' ./config.json)
-#       #     while IFS= read -r property; do
-#       #       value=$(jq -r ".$property" ./$config.json )
-#       #       echo "$property=$value" >> $GITHUB_ENV
-#       #     done <<< "$properties"
+      # - name: Reading config.json and setting environment variables
+      #   run: |
+      #     properties=$(jq -r 'keys[]' ./config.json)
+      #     while IFS= read -r property; do
+      #       value=$(jq -r ".$property" ./$config.json )
+      #       echo "$property=$value" >> $GITHUB_ENV
+      #     done <<< "$properties"
 
 #       - name: Show environment variables
-#         run: echo "${{ matrix.json_paths }} >> $GITHUB_ENV"
+#         run: echo "${{ matrix.json_tags }} >> $GITHUB_ENV"
 
 name: Github Actions Matrix
 
@@ -38,37 +37,58 @@ on:
       - main
 
 jobs:
-  get_tags:
+  get_info:
     runs-on: ubuntu-latest
     outputs:
-      json_data: ${{ steps.read_json.outputs.json_data }}
+      values: ${{ steps.read_config.outputs.values }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Read JSON data
-        id: read_json
+      - name: Read config.json
+        id: read_config
         run: |
-          json_data=$(cat ./config.json)
-          echo "$json_data" > json_data.txt
-          echo "::set-output name=json_data::json_data.txt"
+          values=()
+          properties=$(jq -r 'keys[]' ./config.json)
+          while IFS= read -r property; do
+            value=$(jq -r ".$property" ./config.json)
+            values+=("$value")
+          done <<< "$properties"
+          values_string=$(IFS=','; echo "${values[*]}")
+          echo "::set-output name=values::$values_string"
 
-  echo_tags:
-    needs: get_tags
+  # echo_tags:
+  #   needs: get_tags
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       tags: ${{ fromJson(needs.get_tags.outputs.json_data) }}
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v2
+
+  #     - name: Show tags
+  #       run: |
+  #         tag="${{ matrix.tags }}"
+  #         echo "Tag: $tag"
+  #         echo "Values:"
+  #         jq -r ".$tag | keys[]" json_data/json_data.txt | while read -r key; do
+  #           value=$(jq -r ".$tag.$key" json_data/json_data.txt)
+  #           echo "$key: $value"
+  #         done
+
+
+  another_job:
+    needs: get_info
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        tags: ${{ fromJson(needs.get_tags.outputs.json_data) }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Show tags
+      - name: Use values from previous job
         run: |
-          tag="${{ matrix.tags }}"
-          echo "Tag: $tag"
-          echo "Values:"
-          jq -r ".$tag | keys[]" json_data/json_data.txt | while read -r key; do
-            value=$(jq -r ".$tag.$key" json_data/json_data.txt)
-            echo "$key: $value"
+          values="${{ needs.get_info.outputs.values }}"
+          IFS=',' read -r -a values_array <<< "$values"
+          for value in "${values_array[@]}"; do
+            echo "Value: $value"
           done
