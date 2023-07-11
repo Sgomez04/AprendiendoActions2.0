@@ -3,7 +3,7 @@ name: Github Actions Matrix
 on:
   push:
     branches:
-      - dev
+      - main
 
 jobs:
   deploy:
