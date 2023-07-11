@@ -63,7 +63,7 @@ jobs:
 
     strategy:
       matrix:
-        tags: ${{ fromJson(needs.get_tags.outputs.values) }}
+        tags: ${{ needs.get_tags.outputs.values }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
