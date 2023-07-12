@@ -125,11 +125,10 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Take environment variables
-        id: hola
         run: |
-          echo "LAMBDA_NAME = $(jq -r ".${{ matrix.tags }}" ./config.json)" >> $GITHUB_OUTPUT
+          echo "LAMBDA_NAME = $(jq -r ".${{ matrix.tags }}" ./config.json)" >> $GITHUB_ENV
 
       - name: Show environment variables
         run: |
-          echo "${{steps.hola.outputs.LAMBDA_NAME}}"
+          echo "$LAMBDA_NAME"
 
