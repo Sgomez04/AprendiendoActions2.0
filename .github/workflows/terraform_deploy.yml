@@ -20,7 +20,7 @@ jobs:
         run: |
           JSON=$(cat ./config.json)
           echo $JSON
-          echo "matrix=$(echo $JSON)" >> $GITHUB_OUTPUT
+          echo "matrix=$JSON" >> $GITHUB_OUTPUT
 
   deploy:
     needs: [read_config]
