@@ -24,10 +24,18 @@ jobs:
 
   deploy:
     needs: [read_config]
+    runs-on: ubuntu-latest
     strategy:
       matrix: ${{fromJson(needs.read_config.outputs.lambda)}}
-    uses: ./.github/workflows/reusable2.yml
-    with:
-      json-file: ${{needs.read_config.outputs.lambda}}
+
+    steps:
+      - name: Ejecutar tarea para cada elemento
+        uses: ./.github/workflows/reusable2.yml
+        with:
+          search: "${{matrix}}:"
+                    
+
+    # uses: ./.github/workflows/reusable2.yml
+    # with:
+    #   json-file: ${{needs.read_config.outputs.lambda}}
     
-   

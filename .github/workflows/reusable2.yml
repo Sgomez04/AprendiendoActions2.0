@@ -14,5 +14,5 @@ jobs:
     steps:
       - name: Take values of config
         run: |
-          key = $(jq -r 'keys[]' ${{inputs.json-file}})
-          echo "VALUE= $(jq -r ".$key")"
+          echo ${{inputs.json-file}}
+
