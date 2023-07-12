@@ -40,7 +40,7 @@ jobs:
   get_tags:
     runs-on: ubuntu-latest
     outputs:
-      values: ${{ steps.read_config.outputs.values }}
+      values: ${{ steps.read_config.outputs.keys }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -60,8 +60,7 @@ jobs:
       - name: Read config.json
         id: read_config
         run: |
-          properties=$(jq -r 'keys[]' ./config.json)
-          values=$(echo $properties) >> $GITHUB_OUTPUT
+          keys=$(jq -r 'keys[]' ./config.json) >> $GITHUB_OUTPUT
 
 
   show_info:
