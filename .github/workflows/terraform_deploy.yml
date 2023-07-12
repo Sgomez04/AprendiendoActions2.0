@@ -68,13 +68,11 @@ jobs:
             values+=("$value")
           done <<< "$properties"
           values_string=$(IFS=','; echo "${values[*]}")
-          echokeys=$values_string >> $GITHUB_OUTPUT
-          echo $keys
+          echo keys=$values_string >> $GITHUB_OUTPUT
           
   show_info:
     needs: get_tags
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         tags: ${{ fromJson(needs.get_tags.outputs.values) }}
@@ -83,7 +81,8 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Show environment variables
-        run: echo "${{ needs.get_tags.outputs.values }}"
+        run: |
+          echo "Tag: ${{ matrix.tags }}"
 
   
   # echo_tags:
