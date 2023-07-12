@@ -61,7 +61,7 @@ jobs:
       - name: Read config.json
         id: read_config
         run: |
-          keys= echo "$(jq -r 'keys[]' ./config.json)" >> $GITHUB_OUTPUT
+          keys=echo $(jq -r 'keys[]' ./config.json) >> $GITHUB_OUTPUT
 
 
   show_info:
