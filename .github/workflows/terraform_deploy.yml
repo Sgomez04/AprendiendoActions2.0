@@ -45,17 +45,24 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
+      # - name: Read config.json
+      #   id: read_config
+      #   run: |
+      #     values=()
+      #     properties=$(jq -r 'keys[]' ./config.json)
+      #     while IFS= read -r property; do
+      #       value=$(jq -r ".$property" ./config.json)
+      #       values+=("$value")
+      #     done <<< "$properties"
+      #     values_string=$(IFS=','; echo "${values[*]}")
+      #     values=$values_string >> $GITHUB_OUTPUT
+      
       - name: Read config.json
         id: read_config
         run: |
-          values=()
           properties=$(jq -r 'keys[]' ./config.json)
-          while IFS= read -r property; do
-            value=$(jq -r ".$property" ./config.json)
-            values+=("$value")
-          done <<< "$properties"
-          values_string=$(IFS=','; echo "${values[*]}")
-          echo "::set-output name=values::$values_string"
+          values=$properties >> $GITHUB_OUTPUT
+
 
   show_info:
     needs: get_tags
