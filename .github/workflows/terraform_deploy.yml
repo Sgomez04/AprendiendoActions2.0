@@ -15,7 +15,7 @@ jobs:
       - name: Get configs var
         id: get-lambdas-name
         run: |
-          cd ./../..
+          ls
           JSON=$(cat ./config.json)
           echo "matrix=$JSON" >> $GITHUB_OUTPUT
   deploy:
