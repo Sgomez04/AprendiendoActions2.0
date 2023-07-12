@@ -26,7 +26,7 @@ jobs:
     needs: [read_config]
     strategy:
       matrix: ${{fromJson(needs.read_config.outputs.lambda)}}
-    uses: ./.github/workflows/reusable.yml
+    uses: ./.github/workflows/reusable2.yml
     with:
       json-file: ${{needs.read_config.outputs.lambda}}
     
