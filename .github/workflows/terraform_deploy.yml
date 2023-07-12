@@ -62,7 +62,7 @@ jobs:
         id: read_config
         run: |
           properties= echo $(jq -r 'keys[]' ./config.json)
-          keys=$properties >> $GITHUB_OUTPUT
+          keys=$(echo $properties) >> $GITHUB_OUTPUT
 
   show_info:
     needs: get_tags
