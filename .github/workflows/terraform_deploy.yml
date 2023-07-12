@@ -68,7 +68,7 @@ jobs:
             values+=("$value")
           done <<< "$properties"
           values_string=$(IFS=','; echo "${values[*]}")
-          keys=$values_string >> $GITHUB_OUTPUT
+          echo keys=$values_string >> $GITHUB_OUTPUT
           echo $keys
           
   show_info:
