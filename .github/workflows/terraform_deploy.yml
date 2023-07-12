@@ -15,16 +15,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Just ls
-        run: ls
-
       - name: Get configs var
         id: get-lambdas-name
         run: |
-          ls
-          JSON=$(cat config.json)
+          JSON=$(cat ./config.json)
           echo $JSON
-          echo "matrix=$JSON" >> $GITHUB_OUTPUT
+          echo "matrix=$(echo $JSON)" >> $GITHUB_OUTPUT
 
   deploy:
     needs: [read_config]
