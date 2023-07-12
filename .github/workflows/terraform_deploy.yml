@@ -1,134 +1,31 @@
-# name: Github Actions Matrix
-
-# on:
-#   push:
-#     branches:
-#       - main
-
-# jobs:
-
-#   strategy:
-#     runs-on: ubuntu-latest
-
-#     strategy:
-#       matrix:
-#         json_tag: ["lambda_name1","lambda_name2","lambda_name3","lambda_name4"]
-
-#     steps:
-#       - name: Checkout Repository
-#         uses: actions/checkout@v2
-
-      # - name: Reading config.json and setting environment variables
-      #   run: |
-      #     properties=$(jq -r 'keys[]' ./config.json)
-      #     while IFS= read -r property; do
-      #       value=$(jq -r ".$property" ./$config.json )
-      #       echo "$property=$value" >> $GITHUB_ENV
-      #     done <<< "$properties"
-
-      
-      # - name: Read config.json
-      #   id: read_config
-      #   run: |
-      #     values=()
-      #     properties=$(jq -r 'keys[]' ./config.json)
-      #     while IFS= read -r property; do
-      #       value=$(jq -r ".$property" ./config.json)
-      #       values+=("$value")
-      #     done <<< "$properties"
-      #     values_string=$(IFS=','; echo "${values[*]}")
-      #     values=$values_string >> $GITHUB_OUTPUT
-
-#       - name: Show environment variables
-#         run: echo "${{ matrix.json_tags }} >> $GITHUB_ENV"
-
-# name: Github Actions Matrix
-
-# on:
-#   push:
-#     branches:
-#       - main
-
-# jobs:
-#   get_tags:
-#     runs-on: ubuntu-latest
-#     outputs:
-#       values: ${{ steps.read_config.outputs.keys }}
-#     steps:
-#       - name: Checkout Repository
-#         uses: actions/checkout@v2
-
-#       - name: Read config.json
-#         id: read_config
-#         run: |
-#           values=()
-#           properties=$(jq -r 'keys[]' ./config.json)
-#           while IFS= read -r property; do
-#             value=$(jq -r ".$property" ./config.json)
-#             values+=("$value")
-#           done <<< "$properties"
-#           values_string=$(IFS=','; echo "${values[*]}")
-#           keys=$(echo values_string) >> $GITHUB_OUTPUT
-          
-#   show_info:
-#     needs: get_tags
-#     runs-on: ubuntu-latest
-#     # strategy:
-#     #   matrix:
-#     #     tags: ${{ fromJson(needs.get_tags.outputs.values) }}
-#     steps:
-#       - name: Checkout Repository
-#         uses: actions/checkout@v2
-
-#       - name: Show environment variables
-#         run: |
-#           echo "${{needs.get_tags.outputs.values}}"
-
-
-
 name: Github Actions Matrix
-
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
-  # get_tags:
-  #   runs-on: ubuntu-latest
-  #   outputs:
-  #     values: ${{ steps.read_config.outputs.values }}
-  #   steps:
-  #     - name: Checkout Repository
-  #       uses: actions/checkout@v2
-
-  #     - name: Read config.json
-  #       id: read_config
-  #       run: |
-  #         values=()
-  #         properties=$(jq -r 'keys[]' ./config.json)
-  #         while IFS= read -r property; do
-  #           value=$(jq -r ".$property" ./config.json)
-  #           values+=("$value")
-  #         done <<< "$properties"
-  #         values_string=$(IFS=','; echo "${values[*]}")
-  #         printf "values=%s" "$values_string" >> $GITHUB_OUTPUT
-
-  show_info:
+  read_config:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        tags: [lambda_name1, lambda_name2, lambda_name3]
+    outputs: 
+      lambda: ${{steps.get-lambdas-name.outputs.matrix}}
+
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+    - name: Get configs var
+      id: get-lambdas-name
+      run: |
+        cd ./../..
+        JSON=$(cat ./config.json)
+        echo "matrix=$JSON" >> $GITHUB_OUTPUT
+  deploy:
+    needs: [read_config]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{fromJson(needs.get-lambdas-name.outputs.matrix)}}
 
-      - name: Take environment variables
+    steps:
+      # - name: Checkout repository
+      #   uses: actions/checkout@v2
+      
+      - name: Display Matrix Values
         run: |
-          echo "LAMBDA_NAME = $(jq -r ".${{ matrix.tags }}" ./config.json)" >> $GITHUB_ENV
-
-      - name: Show environment variables
-        run: |
-          echo "$LAMBDA_NAME"
-
+          echo "Deploying lambda"
