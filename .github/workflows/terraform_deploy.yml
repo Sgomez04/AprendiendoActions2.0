@@ -19,7 +19,7 @@ jobs:
         id: get-lambdas-name
         run: |
           ls
-          JSON=$(cat configuration.json)
+          JSON=$(cat config.json)
           echo $JSON
           echo "matrix=$JSON" >> $GITHUB_OUTPUT
 
