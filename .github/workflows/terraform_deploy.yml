@@ -1,9 +1,6 @@
 name: Github Actions Matrix
 on:
-  push:
-    branches:
-      - main
-
+  workflow_dispatch:
 jobs:
   read_config:
     runs-on: ubuntu-latest
@@ -12,12 +9,20 @@ jobs:
       lambda: ${{steps.get-lambdas-name.outputs.matrix}}
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Just ls
+        run: ls
+
       - name: Get configs var
         id: get-lambdas-name
         run: |
           ls
-          JSON=$(cat ./config.json)
+          JSON=$(cat configuration.json)
+          echo $JSON
           echo "matrix=$JSON" >> $GITHUB_OUTPUT
+
   deploy:
     needs: [read_config]
     runs-on: ubuntu-latest
@@ -25,9 +30,6 @@ jobs:
       matrix: ${{fromJson(needs.get-lambdas-name.outputs.matrix)}}
 
     steps:
-      # - name: Checkout repository
-      #   uses: actions/checkout@v2
-
       - name: Display Matrix Values
         run: |
           echo "Deploying lambda"
