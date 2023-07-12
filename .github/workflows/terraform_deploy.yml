@@ -30,4 +30,4 @@ jobs:
 
     uses: ./.github/workflows/reusable2.yml
     with:
-      json-file: "${{matrix}}"
+      json-file: "${{matrix.lambda_name1}}"
