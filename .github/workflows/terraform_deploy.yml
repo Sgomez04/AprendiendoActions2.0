@@ -126,4 +126,4 @@ jobs:
 
       - name: Show environment variables
         run: |
-          echo "$(jq -r ".{{ matrix.tags }}" ./config.json)"
+          echo "LAMBDA_NAME = $(jq -r ".{{ matrix.tags }}" ./config.json)" >> $GITHUB_OUTPUT
