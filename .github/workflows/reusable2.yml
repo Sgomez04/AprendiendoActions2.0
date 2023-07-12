@@ -8,11 +8,11 @@ on:
         type: string
 
 jobs:
-  pepe:
+  json-job:
     runs-on: ubuntu-latest
 
     steps:
       - name: Take values of config
         run: |
           key = $(jq -r 'keys[]' ${{inputs.json-file}})
-          echo "VALUE= $(jq -r ".$key ${{inputs.json-file}}")"
+          echo "VALUE= $(jq -r ".$key")"
