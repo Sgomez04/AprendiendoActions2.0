@@ -68,7 +68,7 @@ jobs:
             values+=("$value")
           done <<< "$properties"
           values_string=$(IFS=','; echo "${values[*]}")
-          echo keys=$values_string >> $GITHUB_OUTPUT
+          echokeys=$values_string >> $GITHUB_OUTPUT
           echo $keys
           
   show_info:
@@ -77,7 +77,7 @@ jobs:
 
     strategy:
       matrix:
-        tags: ${{ needs.get_tags.outputs.values }}
+        tags: ${{ fromJson(needs.get_tags.outputs.values) }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
