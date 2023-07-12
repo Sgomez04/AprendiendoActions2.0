@@ -61,7 +61,7 @@ jobs:
         id: read_config
         run: |
           properties=$(jq -r 'keys[]' ./config.json)
-          values=$properties >> $GITHUB_OUTPUT
+          values=$(echo $properties) >> $GITHUB_OUTPUT
 
 
   show_info:
