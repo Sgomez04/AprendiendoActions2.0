@@ -24,11 +24,10 @@ jobs:
 
   deploy:
     needs: [read_config]
-    runs-on: ubuntu-latest
     strategy:
       matrix: ${{fromJson(needs.read_config.outputs.lambda)}}
-
-    steps:
-      - name: Display Matrix Values
-        run: |
-          echo "Deploying lambda 2"
+    uses: ./.github/workflows/reusable.yml
+    with:
+      json-file: ${{needs.read_config.outputs.lambda}}
+    
+   
