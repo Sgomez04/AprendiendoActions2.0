@@ -73,16 +73,16 @@ jobs:
   show_info:
     needs: get_tags
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        tags: ${{ fromJson(needs.get_tags.outputs.values) }}
+    # strategy:
+    #   matrix:
+    #     tags: ${{ fromJson(needs.get_tags.outputs.values) }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
       - name: Show environment variables
         run: |
-          echo "Tag: ${{ matrix.tags }}"
+          echo "${{needs.get_tags.outputs.values}}"
 
   
   # echo_tags:
