@@ -67,15 +67,15 @@ jobs:
     needs: get_tags
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        tags: ${{ needs.get_tags.outputs.values }}
+    # strategy:
+    #   matrix:
+    #     tags: ${{ needs.get_tags.outputs.values }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
       - name: Show environment variables
-        run: echo "${{ matrix.tags }} >> $GITHUB_ENV"
+        run: echo "${{ needs.get_tags.outputs.values }}"
 
   
   # echo_tags:
