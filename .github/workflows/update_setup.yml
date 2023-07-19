@@ -18,7 +18,7 @@ jobs:
         run: |
           CURRENT_VERSION=$(grep -oP "(?<=version=\")[^\"]+" setup.py)
           IFS='.' read -r -a VERSION_PARTS <<< "$CURRENT_VERSION"
-          NEW_VERSION_PY=echo "${VERSION_PARTS[0]}.$((${VERSION_PARTS[1]}++)).${VERSION_PARTS[2]}" >> "$GITHUB_ENV"
+          NEW_VERSION_PY=echo "${VERSION_PARTS[0]}.$((${VERSION_PARTS[1]++})).${VERSION_PARTS[2]}" >> "$GITHUB_ENV"
 
       - name: "Actualizar versión en setup.py"
         run: |
