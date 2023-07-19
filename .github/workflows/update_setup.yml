@@ -26,14 +26,12 @@ jobs:
           cat setup.py
 
       - name: "Commit changes"
+        env:
+          GH_TOKEN: ${{ secrets.PAT }}  # Nombre del secreto que creaste para el token de acceso personal
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
+          git remote set-url origin "https://$GH_TOKEN@github.com/Sgomez04/AprendiendoActions2.0.git"
           git add setup.py
-          git commit -m "Actualizar versión a ${{ env.NEW_VERSION_PY }}"
-
-      - name: "Push"
-        env:
-          GH_TOKEN: ${{ secrets.PAT }}
-        run: |
+          git commit -m "Actualizar versión a ${{ steps.update_version.outputs.new_version }}"
           git push --force origin dev
