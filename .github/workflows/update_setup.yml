@@ -1,0 +1,28 @@
+name: Update Setup Version
+
+on:
+  # pull_request:
+  push:
+    branches:
+    - 'dev'
+
+jobs:
+  update_version:
+    runs-on: ubuntu-latest
+    outputs:
+      PLAN_FILE: ${{ steps.terraform_plan.outputs.plan_file }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: "Obtener versión actual y calcular nueva versión"
+        id: update_version
+        run: |
+          CURRENT_VERSION=$(grep -E "^version*=\s*\"[0-9]+\.[0-9]+\.[0-9]+\"" setup.py | awk -F'"' '{print $2}')
+          IFS='.' read -r -a VERSION_PARTS <<< "$CURRENT_VERSION"
+          NEW_VERSION="${VERSION_PARTS[0]}.$((${VERSION_PARTS[1]} + 1)).${VERSION_PARTS[2]}"
+          NEW_VERSION_PY = echo "$NEW_VERSION" >> $GITHUB_ENV
+
+      - name: "Actualizar versión en setup.py"
+        run: |
+          sed -i "s/version=\".*\"/version=\"${{ env.NEW_VERSION_PY }}\"/" setup.py
