@@ -9,11 +9,9 @@ on:
 jobs:
   update_version:
     runs-on: ubuntu-latest
-    outputs:
-      PLAN_FILE: ${{ steps.terraform_plan.outputs.plan_file }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: "Obtener versión actual y calcular nueva versión"
         id: update_version
