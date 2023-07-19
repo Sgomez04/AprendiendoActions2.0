@@ -33,5 +33,7 @@ jobs:
           git commit -m "Actualizar versión a ${{ env.NEW_VERSION_PY }}"
 
       - name: "Push"
+        env:
+          GH_TOKEN: ${{ secrets.PAT }}
         run: |
-          git push origin dev
+          git push --force origin dev
