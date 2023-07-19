@@ -16,10 +16,11 @@ jobs:
       - name: "Obtener versión actual y calcular nueva versión"
         id: update_version
         run: |
-          CURRENT_VERSION=$(grep -E "^version\s*=\s*\"[0-9]+\.[0-9]+\.[0-9]+\"" setup.py | awk -F'"' '{print $2}')
+          CURRENT_VERSION=$(grep -oP "(?<=version=\")[^\"]+" setup.py)
           IFS='.' read -r -a VERSION_PARTS <<< "$CURRENT_VERSION"
           NEW_VERSION_PY=echo "${VERSION_PARTS[0]}.$((${VERSION_PARTS[1]} + 1)).${VERSION_PARTS[2]}" >> "$GITHUB_ENV"
 
       - name: "Actualizar versión en setup.py"
         run: |
           sed -i "s/version=\".*\"/version=\"${{ env.NEW_VERSION_PY }}\"/" setup.py
+          cat setup.py
