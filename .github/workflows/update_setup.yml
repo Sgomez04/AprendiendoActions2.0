@@ -24,3 +24,14 @@ jobs:
         run: |
           sed -i "s/version=\".*\"/version=\"${{ env.NEW_VERSION_PY }}\"/" setup.py
           cat setup.py
+
+      - name: "Commit changes"
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add setup.py
+          git commit -m "Actualizar versión a ${{ env.NEW_VERSION_PY }}"
+
+      - name: "Push"
+        run: |
+          git push origin main
