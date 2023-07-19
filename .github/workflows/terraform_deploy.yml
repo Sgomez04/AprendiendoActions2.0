@@ -1,0 +1,83 @@
+name: Terraform Apply
+
+on: workflow_dispatch
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      PLAN_FILE: ${{ steps.terraform_plan.outputs.plan_file }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.ACCESS_KEY_AWS }}
+          aws-secret-access-key: ${{ secrets.SECRET_KEY_AWS }}
+          aws-region: eu-west-3
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Run Terraform Plan
+        id: terraform_plan
+        run: |
+          terraform plan -out=tfplan
+          plan_file=$(cat tfplan) >> $GITHUB_OUTPUT
+          echo "$(terraform plan -no-color)" >> $GITHUB_STEP_SUMMARY
+
+  # approval_to_apply:
+  #   needs: show_plan
+  #   runs-on: ubuntu-latest
+  #   environment: APPROVAL_TO_APPLY
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v2
+
+  # apply:
+  #   needs: [approval_to_apply, plan]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v2
+
+  #     - name: Configure AWS Credentials
+  #       uses: aws-actions/configure-aws-credentials@v1
+  #       with:
+  #         aws-access-key-id: ${{ secrets.ACCESS_KEY_AWS }}
+  #         aws-secret-access-key: ${{ secrets.SECRET_KEY_AWS }}
+  #         aws-region: eu-west-3
+
+  #     - name: Run Terraform Apply
+  #       run: |
+  #         terraform init
+  #         terraform apply -auto-approve ${{ needs.plan.outputs.PLAN_FILE }}
+
+  # approval_to_delete:
+  #   needs: apply
+  #   runs-on: ubuntu-latest
+  #   environment: APPROVAL_TO_DELETE
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v2
+
+  # delete:
+  #   needs: [approval_to_delete, plan]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v2
+
+  #     - name: Configure AWS Credentials
+  #       uses: aws-actions/configure-aws-credentials@v1
+  #       with:
+  #         aws-access-key-id: ${{ secrets.ACCESS_KEY_AWS }}
+  #         aws-secret-access-key: ${{ secrets.SECRET_KEY_AWS }}
+  #         aws-region: eu-west-3
+
+  #     - name: Run Terraform Delete
+  #       run: |
+  #         terraform init
+  #         terraform destroy -auto-approve
