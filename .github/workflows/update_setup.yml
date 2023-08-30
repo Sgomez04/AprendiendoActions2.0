@@ -4,7 +4,7 @@ on:
   # pull_request:
   push:
     branches:
-    - 'main'
+    - 'dev'
 
 jobs:
   update_version:
@@ -15,5 +15,15 @@ jobs:
 
       - name: "Actualizar versión en setup.py"
         run: |
-          sed -i "s/version=[\"'][0-9.]*[\"']/version='antonio'/g" "setup.py"
+          sed -i 's/^version = .*/version = "pepito"/' setup.py
           cat setup.py
+
+      - name: "Commit changes"
+        env:
+          GH_TOKEN: ${{ secrets.PAT }}  # Nombre del secreto que creaste para el token de acceso personal
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add setup.py
+          git commit -m "Actualizar versión a pepito"
+          git push origin dev
