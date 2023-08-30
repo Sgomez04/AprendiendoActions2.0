@@ -1,11 +1,11 @@
 name: reusable workflow   
 
-on:
-  workflow_call:
-    inputs:
-      json-file:
-        required: true
-        type: string
+on: workflow_dispatch
+  # workflow_call:
+  #   inputs:
+  #     json-file:
+  #       required: true
+  #       type: string
 
 jobs:
   json-job:

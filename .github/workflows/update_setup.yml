@@ -4,7 +4,7 @@ on:
   # pull_request:
   push:
     branches:
-    - 'dev'
+    - 'main'
 
 jobs:
   update_version:
@@ -22,7 +22,7 @@ jobs:
 
       - name: "Actualizar versión en setup.py"
         run: |
-          sed -i "s/version=\".*\"/version=\"${{ env.NEW_VERSION_PY }}\"/" setup.py
+          sed -i "s/version=\".*\"/version=\"${{ needs.read_config.outputs.version_value }}\"/" setup.py
           cat setup.py
 
       - name: "Commit changes"
