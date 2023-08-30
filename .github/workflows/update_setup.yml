@@ -15,5 +15,5 @@ jobs:
 
       - name: "Actualizar versión en setup.py"
         run: |
-          sed -i 's/^version = .*/version = "nuevo-valor"/' setup.py
+          sed -i "s/version=[\"'][0-9.]*[\"']/version='antonio'/g" "setup.py"
           cat setup.py
