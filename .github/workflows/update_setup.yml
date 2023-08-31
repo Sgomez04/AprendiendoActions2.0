@@ -2,9 +2,11 @@ name: Update Setup Version
 
 on:
   # pull_request:
-  push:
-    branches:
-    - 'main'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'setup.py version'
+        required: true
 
 jobs:
   update_version:
@@ -15,15 +17,10 @@ jobs:
 
       - name: "Actualizar versión en setup.py"
         run: |
-          sed -i "s/version=\".*\"/version=\hola/" setup.py
+          sed -i "s/version=\".*\"/version=\"${{github.event.inputs.version}}"/" setup.py
           cat setup.py
-
-      - name: "Commit changes"
-        env:
-          GH_TOKEN: ${{ secrets.PAT }}  # Nombre del secreto que creaste para el token de acceso personal
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git add setup.py
-          git commit -m "Actualizar versión a pepito"
-          git push origin main
+      
+      - name: Use Custom Tag Action
+        uses: ./.github/actions/create-custom-tag
+        with:
+          tag: "${{github.event.inputs.version}}"

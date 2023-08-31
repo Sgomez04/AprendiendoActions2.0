@@ -1,0 +1,22 @@
+name: "Create Custom Tag"
+description: "Creates a custom tag in the repository."
+inputs:
+  tag:
+    description: "Tag value"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set tag value
+      run: echo "TAG=${{ inputs.tag }}" >> $GITHUB_ENV
+
+    - name: Create tag
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+        git add setup.py
+        git tag $TAG
+        git push origin $TAG
