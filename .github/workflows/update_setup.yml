@@ -2,9 +2,11 @@ name: Update Setup Version
 
 on:
   # pull_request:
-  push:
-    branches:
-    - 'dev'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'setup.py version'
+        required: true
 
 jobs:
   update_version:
@@ -13,24 +15,12 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: "Obtener versión actual y calcular nueva versión"
-        id: update_version
-        run: |
-          CURRENT_VERSION=$(grep -oP "(?<=version=\")[^\"]+" setup.py)
-          IFS='.' read -r -a VERSION_PARTS <<< "$CURRENT_VERSION"
-          echo "NEW_VERSION_PY=${VERSION_PARTS[0]}.$((${VERSION_PARTS[1]} + 1)).${VERSION_PARTS[2]}" >> "$GITHUB_ENV"
-
       - name: "Actualizar versión en setup.py"
         run: |
-          sed -i "s/version=\".*\"/version=\"${{ env.NEW_VERSION_PY }}\"/" setup.py
+          sed -i "s/version=\".*\"/version=\"${{github.event.inputs.version}}"/" setup.py
           cat setup.py
-
-      - name: "Commit changes"
-        env:
-          GH_TOKEN: ${{ secrets.PAT }}  # Nombre del secreto que creaste para el token de acceso personal
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git add setup.py
-          git commit -m "Actualizar versión a ${{ env.NEW_VERSION_PY }}"
-          git push origin dev
+      
+      - name: Use Custom Tag Action
+        uses: ./.github/actions/create-custom-tag
+        with:
+          tag: "${{github.event.inputs.version}}"
