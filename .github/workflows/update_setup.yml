@@ -30,7 +30,8 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git checkout dev
-          git merge main
+          git merge main --no-ff -m "Merge main into dev"
+          git push origin dev
 
       - name: Use Custom Tag Action
         uses: ./.github/actions/create-custom-tag
