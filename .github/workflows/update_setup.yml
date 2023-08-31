@@ -4,13 +4,18 @@ on:
   # pull_request:
   workflow_dispatch:
     inputs:
+      is_RELEASE:
+        description: 'setup.py version'
+        required: false
+        type: boolean
       version:
         description: 'setup.py version'
-        required: true
+        required: false
 
 jobs:
   update_version:
     runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.is_RELEASE }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
