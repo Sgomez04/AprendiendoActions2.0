@@ -40,13 +40,16 @@ jobs:
         with:
           tag: "${{ steps.get-version.outputs.VERSION  }}"
 
-      # - name: "Actualizar versión en setup.py"
-      #   run: |
-      #     ls
-      #     sed -i "s/version=\".*\"/version=\"${{ github.event.inputs.version }}\"/" setup.py
-      #     git config user.name "GitHub Actions"
-      #     git config user.email "actions@github.com"
-      #     git add setup.py
-      #     git push origin $TAG
+      - name: "Actualizar versión en setup.py"
+        run: |
+          ls
+          IFS='.' read -r -a version_parts <<< "${{ steps.get-version.outputs.VERSION }}"
+          new_version="${version_parts[0]}.$((${version_parts[1]} + 1)).${version_parts[2]}"
+          sed -i "s/version=\".*\"/version=\"$new_version\"/" setup.py
+          git config user.email "actions@github.com"
+          git config user.name "Github Actions"
+          git add setup.py
+          git commit -m "New Version: $new_version"
+          git push origin dev
 
       
