@@ -14,6 +14,8 @@ runs:
       run: echo "TAG=${{ inputs.tag }}" >> $GITHUB_ENV
 
     - name: Create tag
+      env:
+        GH_TOKEN: ${{ secrets.PAT }}  # Nombre del secreto que creaste para el token de acceso personal
       run: |
         git config user.name "GitHub Actions"
         git config user.email "actions@github.com"
