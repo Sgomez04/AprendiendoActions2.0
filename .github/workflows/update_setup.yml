@@ -26,6 +26,8 @@ jobs:
           echo "VERSION=$(grep -oP "(?<=version=\")[^\"]+" setup.py)" >> $GITHUB_ENV
 
       - name: "Merge a la rama main"
+        env:
+          GH_TOKEN: ${{ secrets.PAT }}  # Nombre del secreto que creaste para el token de acceso personal
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
