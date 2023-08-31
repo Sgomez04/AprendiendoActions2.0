@@ -8,9 +8,9 @@ on:
         description: 'setup.py version'
         required: false
         type: boolean
-      version:
-        description: 'setup.py version'
-        required: false
+      # version:
+      #   description: 'setup.py version'
+      #   required: false
 
 jobs:
   update_version:
@@ -20,14 +20,32 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: "Actualizar versión en setup.py"
+      - name: "Obtener version actual del setup.py"
+        id: get-version
         run: |
-          ls
-          version=${{ github.event.inputs.version }}
-          sed -i "s/version=\".*\"/version=\"$version\"/" setup.py
-          cat setup.py
-      
+          echo "VERSION=$(grep -oP "(?<=version=\")[^\"]+" setup.py)" >> $GITHUB_ENV
+
+      - name: "Merge a la rama main"
+        id: merge
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git checkout dev
+          git merge main
+
       - name: Use Custom Tag Action
         uses: ./.github/actions/create-custom-tag
         with:
-          tag: "${{ github.event.inputs.version }}"
+          tag: "${{ steps.get-version.outputs.VERSION  }}"
+        needs: merge
+
+      # - name: "Actualizar versión en setup.py"
+      #   run: |
+      #     ls
+      #     sed -i "s/version=\".*\"/version=\"${{ github.event.inputs.version }}\"/" setup.py
+      #     git config user.name "GitHub Actions"
+      #     git config user.email "actions@github.com"
+      #     git add setup.py
+      #     git push origin $TAG
+
+      
