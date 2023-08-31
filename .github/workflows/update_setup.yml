@@ -25,11 +25,9 @@ jobs:
       - name: "Obtener version actual del setup.py"
         id: get-version
         run: |
-          echo "VERSION=$(grep -oP "(?<=version=\")[^\"]+" setup.py)" >> $GITHUB_ENV
+          echo "VERSION=$(grep -oP "(?<=version=\")[^\"]+" setup.py)" >> $GITHUB_OUTPUT
 
       - name: "Merge a la rama main"
-        env:
-          GH_TOKEN: ${{ secrets.PAT }}  # Nombre del secreto que creaste para el token de acceso personal
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
