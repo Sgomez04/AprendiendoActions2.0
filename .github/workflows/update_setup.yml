@@ -19,6 +19,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: "Obtener version actual del setup.py"
         id: get-version
@@ -29,8 +31,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PAT }}  # Nombre del secreto que creaste para el token de acceso personal
         run: |
-          git config user.name "Sgomez04"
-          git config user.email "sgomez_m@hotmail.com"
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
           git checkout dev
           git merge main --no-ff -m "Merge main into dev"
           git push origin dev
