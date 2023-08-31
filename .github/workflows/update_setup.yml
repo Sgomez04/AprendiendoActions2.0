@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       is_RELEASE:
-        description: 'setup.py version'
+        description: 'Is a new REALEASE'
         required: false
         type: boolean
       # version:
@@ -50,6 +50,6 @@ jobs:
           git config user.name "Github Actions"
           git add setup.py
           git commit -m "New Version: $new_version"
-          git push origin dev
+          git push origin main
 
       
