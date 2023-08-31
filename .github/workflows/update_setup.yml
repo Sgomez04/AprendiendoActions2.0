@@ -17,7 +17,8 @@ jobs:
 
       - name: "Actualizar versión en setup.py"
         run: |
-          sed -i "s/version=\".*\"/version='${{ github.event.inputs.version }}'/" setup.py
+          version=${{ github.event.inputs.version }}
+          sed -i "s/version=\".*\"/version="$version"/" setup.py
           cat setup.py
       
       - name: Use Custom Tag Action
