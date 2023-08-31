@@ -11,12 +11,10 @@ runs:
       uses: actions/checkout@v3
 
     - name: Set tag value
-      run: echo "TAG=1.0.20" >> $GITHUB_ENV
+      run: echo "TAG=${{ inputs.tag }}" >> $GITHUB_ENV
       shell: bash
 
     - name: Create tag
-      env:
-        GH_TOKEN: ${{ secrets.PAT }} # Nombre del secreto que creaste para el token de acceso personal
       run: |
         git config user.name "GitHub Actions"
         git config user.email "actions@github.com"
