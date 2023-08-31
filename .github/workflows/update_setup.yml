@@ -23,6 +23,6 @@ jobs:
           cat setup.py
       
       - name: Use Custom Tag Action
-        uses: ./actions/create-custom-tag
+        uses: ./.github/actions/create-custom-tag
         with:
           tag: "${{ github.event.inputs.version }}"
