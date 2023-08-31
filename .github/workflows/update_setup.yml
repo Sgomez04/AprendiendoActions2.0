@@ -32,7 +32,7 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git checkout dev
-          git merge main --no-ff -m "Merge main into dev"
+          git merge main -m "Merge main into dev"
           git push origin dev
 
       - name: Use Custom Tag Action
@@ -48,7 +48,7 @@ jobs:
           sed -i "s/version=\".*\"/version=\"$new_version\"/" setup.py
           git config user.email "actions@github.com"
           git config user.name "Github Actions"
-          git add setup.py
+          git add .
           git commit -m "New Version: $new_version"
           git push origin main
 
