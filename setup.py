@@ -1,5 +1,5 @@
 setup(
     name="test",
-    version="1.5.2",
+    version="1.7.2",
     author="Luisk"
 )
