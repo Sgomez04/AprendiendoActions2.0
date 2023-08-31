@@ -17,6 +17,7 @@ jobs:
 
       - name: "Actualizar versión en setup.py"
         run: |
+          ls
           version=${{ github.event.inputs.version }}
           sed -i "s/version=\".*\"/version="$version"/" setup.py
           cat setup.py
