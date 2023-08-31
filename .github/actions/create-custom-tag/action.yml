@@ -12,13 +12,16 @@ runs:
 
     - name: Set tag value
       run: echo "TAG=1.0.20" >> $GITHUB_ENV
+      shell: bash
 
     - name: Create tag
       env:
-        GH_TOKEN: ${{ secrets.PAT }}  # Nombre del secreto que creaste para el token de acceso personal
+        GH_TOKEN: ${{ secrets.PAT }} # Nombre del secreto que creaste para el token de acceso personal
       run: |
         git config user.name "GitHub Actions"
         git config user.email "actions@github.com"
         git add setup.py
         git tag $TAG
         git push origin $TAG
+      shell: bash
+
