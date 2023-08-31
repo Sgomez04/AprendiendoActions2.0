@@ -4,23 +4,51 @@ on:
   # pull_request:
   workflow_dispatch:
     inputs:
-      version:
+      is_RELEASE:
         description: 'setup.py version'
-        required: true
+        required: false
+        type: boolean
+      # version:
+      #   description: 'setup.py version'
+      #   required: false
 
 jobs:
   update_version:
     runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.is_RELEASE }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-      - name: "Actualizar versión en setup.py"
+      - name: "Obtener version actual del setup.py"
+        id: get-version
         run: |
-          sed -i "s/version=\".*\"/version=\"${{github.event.inputs.version}}"/" setup.py
-          cat setup.py
-      
+          echo "VERSION=$(grep -oP "(?<=version=\")[^\"]+" setup.py)" >> $GITHUB_ENV
+
+      - name: "Merge a la rama main"
+        env:
+          GH_TOKEN: ${{ secrets.PAT }}  # Nombre del secreto que creaste para el token de acceso personal
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git checkout dev
+          git merge main --no-ff -m "Merge main into dev"
+          git push origin dev
+
       - name: Use Custom Tag Action
         uses: ./.github/actions/create-custom-tag
         with:
-          tag: "${{github.event.inputs.version}}"
+          tag: "${{ steps.get-version.outputs.VERSION  }}"
+
+      # - name: "Actualizar versión en setup.py"
+      #   run: |
+      #     ls
+      #     sed -i "s/version=\".*\"/version=\"${{ github.event.inputs.version }}\"/" setup.py
+      #     git config user.name "GitHub Actions"
+      #     git config user.email "actions@github.com"
+      #     git add setup.py
+      #     git push origin $TAG
+
+      
