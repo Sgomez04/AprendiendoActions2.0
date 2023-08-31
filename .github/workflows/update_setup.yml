@@ -1,36 +1,55 @@
 name: Update Setup Version
 
 on:
-  pull_request:
-    branches:
-      - 'dev'
+  # pull_request:
+  workflow_dispatch:
+    inputs:
+      is_RELEASE:
+        description: 'Is a new REALEASE'
+        required: false
+        type: boolean
+      # version:
+      #   description: 'setup.py version'
+      #   required: false
 
 jobs:
   update_version:
     runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.is_RELEASE }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-      - name: "Obtener versión actual y calcular nueva versión"
-        id: update_version
+      - name: "Obtener version actual del setup.py"
+        id: get-version
         run: |
-          CURRENT_VERSION=$(grep -oP "(?<=version=\")[^\"]+" setup.py)
-          IFS='.' read -r -a VERSION_PARTS <<< "$CURRENT_VERSION"
-          echo "NEW_VERSION_PY=${VERSION_PARTS[0]}.$((${VERSION_PARTS[1]} + 1)).${VERSION_PARTS[2]}" >> "$GITHUB_ENV"
+          echo "VERSION=$(grep -oP "(?<=version=\")[^\"]+" setup.py)" >> $GITHUB_OUTPUT
 
-      - name: "Actualizar versión en setup.py"
-        run: |
-          sed -i "s/version=\".*\"/version=\"${{ env.NEW_VERSION_PY }}\"/" setup.py
-          cat setup.py
-
-      - name: "Commit changes"
-        env:
-          GH_TOKEN: ${{ secrets.PAT }}  # Nombre del secreto que creaste para el token de acceso personal
+      - name: "Merge a la rama main"
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git remote set-url origin "https://$GH_TOKEN@github.com/Sgomez04/AprendiendoActions2.0.git"
-          git add setup.py
-          git commit -m "Actualizar versión a ${{ env.NEW_VERSION_PY }}"
+          git checkout dev
+          git merge main --no-ff -m "Merge main into dev"
           git push origin dev
+
+      - name: Use Custom Tag Action
+        uses: ./.github/actions/create-custom-tag
+        with:
+          tag: "${{ steps.get-version.outputs.VERSION  }}"
+
+      - name: "Actualizar versión en setup.py"
+        run: |
+          ls
+          IFS='.' read -r -a version_parts <<< "${{ steps.get-version.outputs.VERSION }}"
+          new_version="${version_parts[0]}.$((${version_parts[1]} + 1)).${version_parts[2]}"
+          sed -i "s/version=\".*\"/version=\"$new_version\"/" setup.py
+          git config user.email "actions@github.com"
+          git config user.name "Github Actions"
+          git add setup.py
+          git commit -m "New Version: $new_version"
+          git push origin main
+
+      
