@@ -15,7 +15,7 @@ on:
 
 jobs:
   update_version:
-    if: ${{ inputs.is_RELEASE }} == "true"
+    if: ${{ inputs.is_RELEASE != 'false'}} 
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
