@@ -14,8 +14,8 @@ on:
 
 jobs:
   update_version:
+    if: ${{ github.event.inputs.is_RELEASE == true }} 
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.is_RELEASE }} == true
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
