@@ -8,13 +8,14 @@ on:
         description: 'Is a new REALEASE'
         required: false
         type: boolean
+        default: false
       # version:
       #   description: 'setup.py version'
       #   required: false
 
 jobs:
   update_version:
-    if: ${{ github.event.inputs.is_RELEASE }} == 1 
+    if: ${{ github.event.inputs.is_RELEASE }} == ${{ true }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
